@@ -164,7 +164,7 @@ This system can be used for:
 
 ## Author
 
-Ronit
+Ronith Singh
 (Illegal Fishing Detection Project)
 
 ---
