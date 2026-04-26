@@ -1,174 +1,99 @@
-# Illegal Fishing Detection System 🚢
+# Project Nereus: Forensic AI for IUU Fishing Detection 🌊🚤
 
 ## Overview
 
-This project detects suspicious maritime behavior using AIS (Automatic Identification System) data. It identifies anomalies such as AIS signal loss, GPS spoofing, loitering, and vessel rendezvous, and visualizes them on an interactive map.
+**Project Nereus** is an intelligent AI-driven framework designed to detect **Illegal, Unreported, and Unregulated (IUU)** fishing activities using maritime AIS data. Unlike traditional rule-based systems, Nereus employs deep learning and spatiotemporal clustering to identify "intentional intent" behind suspicious vessel movements.
 
-The system processes large-scale vessel tracking data and converts it into meaningful insights for monitoring illegal fishing activities.
-
----
-
-## Features
-
-### 🔍 Anomaly Detection
-
-* **AIS Gaps (Dark Activity):** Long signal loss periods
-* **GPS Jump / Spoofing:** Unrealistic movement speeds
-* **Loitering:** Low-speed repeated movement offshore
-* **Fishing Risk:** Fishing near protected or coastal zones
-* **Rendezvous Detection:** Multiple vessels clustering offshore
+This project implements the full multi-modal pipeline described in the Project Nereus research paper.
 
 ---
 
-### 📊 Risk Scoring
+## Core AI Modules
 
-Each AIS point is assigned a **risk score** based on:
+### 🧠 1. The Truth Engine (Bi-LSTM)
+*   **Purpose:** High-fidelity trajectory reconstruction during "dark periods" (AIS signal gaps).
+*   **Technology:** Bidirectional Long Short-Term Memory (Bi-LSTM) Neural Network.
+*   **Function:** When a vessel disables its AIS to hide its activity, the Truth Engine predicts its most likely path. If this path crosses into a protected Marine Protected Area (MPA), it flags a **Hidden Zone Intrusion** (+100 risk points).
 
-* signal gaps
-* suspicious movement
-* proximity to risk zones
-* fishing activity
+### 🤝 2. The Handshake Detector (DBSCAN)
+*   **Purpose:** Identifying clandestine transshipments (cargo transfers at sea).
+*   **Technology:** Density-Based Spatial Clustering of Applications with Noise (DBSCAN).
+*   **Function:** Detects clusters of 2+ vessels operating at <2 knots within 500 meters of each other for more than 2 hours in offshore locations.
+
+### ⚖️ 3. Geo-Spatial Intent Scoring
+*   **Purpose:** Ranking vessels by forensic risk.
+*   **Weights:**
+    *   **Zone Intrusion (Real or AI-Predicted):** +100 Points
+    *   **Tactical Darkness (Signal cut near borders):** +50 Points
+    *   **Rendezvous Cluster Flag:** +40 Points
+    *   **GPS Spoofing/Jumps:** +35 Points
 
 ---
 
-### 🗺️ Interactive Map
+## 📊 Forensic Dashboard
 
-* Layer-based toggle system
-* Clickable anomaly points with explanations
-* Vessel trajectory visualization
-* Risk zones (geofenced areas)
+The system generates a high-end interactive dashboard (`NEREUS_ANOMALY_MAP.html`) featuring:
+
+*   **Global Anomaly Map:** Multi-layered visualization of AI intrusions, tactical darkness, and loitering.
+*   **Forensic Radar Chart:** A "Spider Chart" comparing the top 5 suspects across four risk axes.
+*   **Transmission Timeline:** A "barcode" visualization showing AIS active vs. dark periods for the #1 suspect.
+*   **Live Intel Panel:** Real-time summary of total AI detections and fleet activity.
 
 ---
 
 ## Project Structure
 
 ```text
-illegal_fishing_project/
+illegal-fishing-detection/
 │
-├── data/
-│   ├── trollers.csv
-│   ├── pole_and_line.csv
-│
+├── data/                  # AIS CSV datasets (Trollers, Pole-and-Line)
+├── models/                # Trained Bi-LSTM weights and Scalers
 ├── src/
-│   ├── nereus_map.py
-│   ├── inspect_trollers.py
+│   ├── nereus_map.py      # Main application and forensic pipeline
+│   └── truth_engine.py    # AI training and sequence generation logic
 │
-├── notebooks/
-├── NEREUS_ANOMALY_MAP.html
+├── NEREUS_ANOMALY_MAP.html # Generated forensic dashboard
 ├── README.md
-├── LICENSE
-├── .gitignore
+└── LICENSE
 ```
 
 ---
 
-## How It Works
+## Getting Started
 
-1. **Load Data**
-
-   * Reads AIS datasets from `/data`
-
-2. **Feature Engineering**
-
-   * Time gaps between signals
-   * Distance traveled (Haversine)
-   * Speed estimation
-   * Course changes
-   * Distance to risk zones
-
-3. **Anomaly Detection**
-
-   * Dark activity
-   * GPS spoofing
-   * Loitering
-   * Fishing in sensitive zones
-
-4. **Rendezvous Detection**
-
-   * Identifies clusters of vessels operating together offshore
-
-5. **Visualization**
-
-   * Generates interactive Leaflet map
-   * Saves output as:
-
-     ```
-     NEREUS_ANOMALY_MAP.html
-     ```
-
----
-
-## How to Run
-
-### Install dependencies
-
+### 1. Install Dependencies
 ```bash
-pip install pandas numpy
+pip install pandas numpy tensorflow scikit-learn joblib tqdm
 ```
 
-### Run the project
+### 2. Train the AI (Optional)
+If you wish to retrain the Truth Engine on your local data:
+```bash
+python src/truth_engine.py
+```
+*This will generate `models/truth_engine_bilstm.keras`.*
 
+### 3. Generate Forensic Report
 ```bash
 python src/nereus_map.py
 ```
-
-Or using entry script:
-
-```python
-from nereus_map import main
-
-if __name__ == "__main__":
-    main()
-```
-
----
-
-## Output
-
-* `NEREUS_ANOMALY_MAP.html`
-
-  * Interactive anomaly visualization
-  * Toggle different anomaly layers
-  * Click pins to see detailed explanations
+*This processes the data, runs the Bi-LSTM reconstruction, and outputs the HTML dashboard.*
 
 ---
 
 ## Technologies Used
-
-* Python
-* Pandas & NumPy
-* Geospatial calculations (Haversine)
-* Leaflet.js (map rendering)
-
----
-
-## Use Case
-
-This system can be used for:
-
-* Maritime surveillance
-* Illegal fishing detection
-* Vessel behavior analysis
-* Ocean monitoring systems
-
----
-
-## Future Improvements
-
-* Real-time AIS streaming
-* Deep learning (Bi-LSTM across vessels)
-* Dashboard (Streamlit / Web App)
-* Satellite data integration
+*   **Deep Learning:** TensorFlow/Keras (Bi-LSTM)
+*   **Machine Learning:** Scikit-Learn (DBSCAN)
+*   **Data Science:** Pandas, NumPy
+*   **Visualization:** Leaflet.js, Chart.js
 
 ---
 
 ## Author
-
-Ronith Singh
-(Illegal Fishing Detection Project)
+Implementation of the **Project Nereus** AI Framework.
+*(Based on Jaypee Institute of Information Technology Research)*
 
 ---
 
 ## License
-
 MIT License
