@@ -88,12 +88,3 @@ python src/nereus_map.py
 *   **Visualization:** Leaflet.js, Chart.js
 
 ---
-
-## Author
-Implementation of the **Project Nereus** AI Framework.
-*(Based on Jaypee Institute of Information Technology Research)*
-
----
-
-## License
-MIT License
